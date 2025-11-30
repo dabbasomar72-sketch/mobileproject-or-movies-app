@@ -58,14 +58,16 @@ export default function RegisterScreen({ route, navigation }) {
 
       if (!userResponse.ok) throw new Error("User registration failed");
 
-      // Register for event
+      // Register for event (send to the new API)
       const registrationResponse = await fetch(
-        "https://grmoviev2.onrender.com/registrations",
+        "https://grmobile.onrender.com/events",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            // include both fields for compatibility
             movieId: Event?.id ?? null,
+            eventId: Event?.id ?? null,
             name: name.trim(),
             email: email.trim(),
             phone: phone.trim(),

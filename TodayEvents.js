@@ -83,7 +83,6 @@ export default function TodayEvents({ navigation, route }) {
           keyExtractor={(item) => item.id?.toString() ?? Math.random().toString()}
           renderItem={renderEventCard}
           contentContainerStyle={{ paddingBottom: 30 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadEvents({ refresh: true })} />}
           ListEmptyComponent={<Text style={[styles.noEvents, dark && styles.darkText]}>No events found</Text>}
         />
       </View>
