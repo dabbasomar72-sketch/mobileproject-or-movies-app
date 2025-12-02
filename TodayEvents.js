@@ -27,11 +27,16 @@ export default function TodayEvents({ navigation, route }) {
   const { settings } = useSettings();
   const dark = !!settings?.darkMode;
 
-  React.useEffect(() => {
-    // Load events on mount
-    setEvents(fetchEvents);
-    setFilteredEvents(fetchEvents);
-  }, []);
+  useEffect(() => {
+  const loadEvents = async () => {
+    const data = await fetchEvents();  // get actual events
+    setEvents(data);
+    setFilteredEvents(data);
+  };
+
+  loadEvents();
+}, []);
+
 
 
   useEffect(() => {
@@ -53,23 +58,23 @@ export default function TodayEvents({ navigation, route }) {
   const renderEventCard = ({ item }) => {
     return (
       <TouchableOpacity onPress={() => onCardPress(item)} activeOpacity={0.85}>
-        <View style={styles.card}>
+        <View style={[styles.card, dark && styles.cardDark]}>
           <View style={styles.titleRow}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <Text style={styles.eventTitle} numberOfLines={1}>
-                {item.name}
+              <Text style={[styles.eventTitle, dark && styles.darkText]} numberOfLines={1}>
+                {item.name || item.title || item.eventName || item.movieName || item.event_name || 'Untitled Event'}
               </Text>
             </ScrollView>
           </View>
 
           <View style={styles.row}>
-            <MaterialIcons name="schedule" size={18} />
-            <Text style={styles.infoText}>{formatTimeRange(item.starttime, item.endtime)}</Text>
-            <MaterialIcons name="location-on" size={18} style={{ marginLeft: 12 }} />
-            <Text style={styles.infoText}>{item.category}</Text>
+            <MaterialIcons name="schedule" size={18} color={dark ? "#90caf9" : undefined} />
+            <Text style={[styles.infoText, dark && styles.darkText]}>{formatTimeRange(item.starttime, item.endtime)}</Text>
+            <MaterialIcons name="location-on" size={18} color={dark ? "#90caf9" : undefined} style={{ marginLeft: 12 }} />
+            <Text style={[styles.infoText, dark && styles.darkText]}>{item.category}</Text>
           </View>
 
-          <Text style={styles.spots}>Spots remaining: {item.spotsRemaining}</Text>
+          <Text style={[styles.spots, dark && styles.darkText]}>Spots remaining: {item.spotsRemaining}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -87,7 +92,7 @@ export default function TodayEvents({ navigation, route }) {
 
         <FlatList
           data={filteredEvents}
-          keyExtractor={(item) => item.id?.toString() ?? Math.random().toString()}
+          keyExtractor={(item) => ((item.id || item._id)?.toString() ?? Math.random().toString())}
           renderItem={renderEventCard}
           contentContainerStyle={{ paddingBottom: 30 }}
           ListEmptyComponent={<Text style={[styles.noEvents, dark && styles.darkText]}>No events found</Text>}
@@ -115,5 +120,6 @@ const styles = StyleSheet.create({
   darkSafe: { backgroundColor: "#0b1220" },
   darkContainer: { backgroundColor: "#0b1220" },
   welcomeCardDark: { backgroundColor: "#071028" },
+  cardDark: { backgroundColor: "#0f1724" },
   darkText: { color: "#fff" },
 });

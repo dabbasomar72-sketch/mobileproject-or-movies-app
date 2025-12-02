@@ -28,7 +28,11 @@ function HomeScreen({ navigation }) {
 
   React.useEffect(() => {
     // Load events on mount
-    setEvents(fetchEvents);
+    const load = async () => {
+      const data = await fetchEvents();
+      setEvents(data || []);
+    };
+    load();
   }, []);
   // events come from local `eventsData.js` (no remote fetch)
 
@@ -60,7 +64,10 @@ function HomeScreen({ navigation }) {
       setSuggestions([]);
       return;
     }
-    const results = events.filter((e) => e.name.toLowerCase().startsWith(q));
+    const results = (events || []).filter((e) => {
+      const title = (e.name || e.title || e.eventName || e.movieName || e.event_name || "").toString().toLowerCase();
+      return title.startsWith(q);
+    });
     setSuggestions(results);
   };
 
@@ -103,11 +110,12 @@ function HomeScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {suggestions.length > 0 && (
+      {/* Suggestions: show matching results while typing, otherwise show featured daily events */}
+      {((query.trim().length > 0 ? suggestions : dailyEvents) || []).length > 0 && (
         <View style={[styles.suggestionsContainer, dark && { backgroundColor: "#071028" }]}>
-          {suggestions.slice(0, 6).map((s) => (
-            <TouchableOpacity key={s.id} style={styles.suggestionItem} onPress={() => onSelectSuggestion(s)}>
-              <Text style={[styles.suggestionText, dark && styles.darkText]}>{s.name} — {s.category}</Text>
+          {(query.trim().length > 0 ? suggestions : dailyEvents).slice(0, 6).map((s) => (
+            <TouchableOpacity key={(s.id || s._id || s.name || Math.random()).toString()} style={styles.suggestionItem} onPress={() => onSelectSuggestion(s)}>
+              <Text style={[styles.suggestionText, dark && styles.darkText]}>{(s.name || s.title || s.eventName || s.movieName || s.event_name || 'Untitled Event')} — {s.category}</Text>
             </TouchableOpacity>
           ))}
         </View>
