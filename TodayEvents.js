@@ -1,9 +1,9 @@
 // TodayEvents.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { View, FlatList, StyleSheet, Text, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import sampleEvents from "./eventsData";
+import fetchEvents from "./eventsData";
 import { useSettings } from "./SettingsContext";
 
 const formatTimeRange = (startIso, endIso) => {
@@ -22,10 +22,17 @@ const formatTimeRange = (startIso, endIso) => {
 };
 
 export default function TodayEvents({ navigation, route }) {
-  const [events] = useState(sampleEvents);
-  const [filteredEvents, setFilteredEvents] = useState(sampleEvents);
+  const [events, setEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const { settings } = useSettings();
   const dark = !!settings?.darkMode;
+
+  React.useEffect(() => {
+    // Load events on mount
+    setEvents(fetchEvents);
+    setFilteredEvents(fetchEvents);
+  }, []);
+
 
   useEffect(() => {
     const initialCategory = route?.params?.initialCategory;

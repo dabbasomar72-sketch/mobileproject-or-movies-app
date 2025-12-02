@@ -5,7 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { MaterialIcons } from "@expo/vector-icons";
-import sampleEvents from "./eventsData";
+import fetchEvents from "./eventsData";
 import { useSettings } from "./SettingsContext";
 
 import TodayMovie from "./TodayEvents";
@@ -13,6 +13,7 @@ import MovieDetailScreen from "./MovieDetailScreen";
 import RegisterScreen from "./RegisterScreen";
 import SettingsScreen from "./SettingsScreen";
 import { SettingsContext } from "./SettingsContext";
+import TodayEvents from "./TodayEvents";
 
 
 const Tab = createBottomTabNavigator();
@@ -23,16 +24,22 @@ function HomeScreen({ navigation }) {
   const dark = !!settings?.darkMode;
   const [query, setQuery] = React.useState("");
   const [suggestions, setSuggestions] = React.useState([]);
+  const [events, setEvents] = React.useState([]);
+
+  React.useEffect(() => {
+    // Load events on mount
+    setEvents(fetchEvents);
+  }, []);
   // events come from local `eventsData.js` (no remote fetch)
 
   const categories = React.useMemo(() => {
-    return Array.from(new Set(["Today", ...sampleEvents.map((e) => e.category)]));
+    return Array.from(new Set(["Today", ...events.map((e) => e.category)]));
   }, []);
 
   // Deterministic daily selection of 3 events.
   // We derive a simple numeric seed from today's date and pick three consecutive events (wrap-around).
   const dailyEvents = React.useMemo(() => {
-    const list = sampleEvents || [];
+    const list = events || [];
     if (list.length === 0) return [];
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     // simple hash: sum of char codes
@@ -53,7 +60,7 @@ function HomeScreen({ navigation }) {
       setSuggestions([]);
       return;
     }
-    const results = sampleEvents.filter((e) => e.name.toLowerCase().startsWith(q));
+    const results = events.filter((e) => e.name.toLowerCase().startsWith(q));
     setSuggestions(results);
   };
 
@@ -125,7 +132,7 @@ function HomeScreen({ navigation }) {
 function EventsStackScreen() {
   return (
     <EventsStack.Navigator screenOptions={{ headerShown: false }}>
-      <EventsStack.Screen name="EventsList" component={TodayMovie} />
+      <EventsStack.Screen name="EventsList" component={TodayEvents} />
       <EventsStack.Screen name="EventDetail" component={MovieDetailScreen} />
       <EventsStack.Screen name="Register" component={RegisterScreen} />
     </EventsStack.Navigator>

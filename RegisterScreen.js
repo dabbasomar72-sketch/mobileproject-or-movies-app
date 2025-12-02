@@ -44,29 +44,28 @@ export default function RegisterScreen({ route, navigation }) {
     setLoading(true);
     try {
       // Register user
-      const userResponse = await fetch("https://grmoviev2.onrender.com/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          role,
-          deactivated: false,
-        }),
-      });
+      // const userResponse = await fetch("https://grmobile.onrender.com/registrations", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     name: name.trim(),
+      //     email: email.trim(),
+      //     phone: phone.trim(),
+      //     role,
+      //     deactivated: false,
+      //   }),
+      // });
 
-      if (!userResponse.ok) throw new Error("User registration failed");
+      // if (!userResponse.ok) throw new Error("User registration failed");
 
       // Register for event (send to the new API)
       const registrationResponse = await fetch(
-        "https://grmobile.onrender.com/events",
+        "https://grmobile.onrender.com/registrations",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             // include both fields for compatibility
-            movieId: Event?.id ?? null,
             eventId: Event?.id ?? null,
             name: name.trim(),
             email: email.trim(),
